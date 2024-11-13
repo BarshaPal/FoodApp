@@ -17,6 +17,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AuthenticationActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -119,11 +122,32 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void assignUserRole(String userId, String role) {
+        // Add user document to "users" collection
         db.collection("users").document(userId)
                 .set(new User(userId, role))
-                .addOnSuccessListener(aVoid -> Toast.makeText(this, "User role assigned", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "User role assigned", Toast.LENGTH_SHORT).show();
+
+                    // If the user is a student, add them to the "students" collection
+                    if ("user".equalsIgnoreCase(role)) {
+                        addStudentRecord(userId);
+                    }
+                })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to assign user role", Toast.LENGTH_SHORT).show());
     }
+
+    private void addStudentRecord(String userId) {
+        // Create a default student entry
+        Map<String, Object> studentData = new HashMap<>();
+        studentData.put("uid", userId);
+        studentData.put("dueAmount", 0.0);  // Initialize dueAmount or any other necessary fields
+
+        db.collection("students").document(userId)
+                .set(studentData)
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Student record created", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to create student record", Toast.LENGTH_SHORT).show());
+    }
+
 
     private boolean validateInput(String email, String password) {
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {

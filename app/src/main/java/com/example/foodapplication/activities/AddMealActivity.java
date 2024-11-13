@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.foodapplication.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -32,7 +34,7 @@ public class AddMealActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private Button breakfastButton, lunchButton, dinnerButton, viewPaymentButton, detailPaymentButton;
     private TextView dueAmountTextView;
-    private String studentId = "13"; // Replace with actual student ID
+    private String studentId ; // Replace with actual student ID
 
     // Step 1: Define the ActivityResultLauncher to handle result from PaymentActivity
     private final ActivityResultLauncher<Intent> paymentLauncher =
@@ -53,7 +55,16 @@ public class AddMealActivity extends AppCompatActivity {
 
         // Initialize Firebase Firestore
         db = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            studentId = currentUser.getUid();
 
+        } else {
+            // Handle the case where the user is not authenticated
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            finish(); // Close the activity
+            return;
+        }
         // Initialize UI elements
         breakfastButton = findViewById(R.id.breakfastButton);
         lunchButton = findViewById(R.id.lunchButton);
@@ -61,7 +72,7 @@ public class AddMealActivity extends AppCompatActivity {
         viewPaymentButton = findViewById(R.id.viewPaymentButton);
         detailPaymentButton = findViewById(R.id.DetailPaymentButton);
         dueAmountTextView = findViewById(R.id.dueAmountTextView);
-
+        updateDueAmountDisplay();
         // Setup button click listeners
         breakfastButton.setOnClickListener(v -> logMeal("Breakfast", 30));
         lunchButton.setOnClickListener(v -> logMeal("Lunch", 50));
@@ -87,6 +98,7 @@ public class AddMealActivity extends AppCompatActivity {
 
         // If the logout option is selected, log the user out
         if (id == R.id.action_logout) {
+            FirebaseAuth.getInstance().signOut();
             logoutUser();
             return true;
         }
@@ -107,6 +119,8 @@ public class AddMealActivity extends AppCompatActivity {
 
     // Log the selected meal and update the due amount
     private void logMeal(String mealName, double mealCost) {
+        Toast.makeText(this, "User id"+studentId, Toast.LENGTH_SHORT).show();
+
         db.collection("students").document(studentId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -120,6 +134,8 @@ public class AddMealActivity extends AppCompatActivity {
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(AddMealActivity.this, mealName + " logged successfully", Toast.LENGTH_SHORT).show();
                                     updateDueAmountDisplay();
+                                    addMealToMealsCollection(mealName, mealCost);
+
                                 })
                                 .addOnFailureListener(e ->
                                         Toast.makeText(AddMealActivity.this, "Failed to log meal", Toast.LENGTH_SHORT).show());
@@ -128,7 +144,22 @@ public class AddMealActivity extends AppCompatActivity {
                 .addOnFailureListener(e ->
                         Toast.makeText(AddMealActivity.this, "Failed to retrieve student data", Toast.LENGTH_SHORT).show());
     }
+    private void addMealToMealsCollection(String mealName, double mealCost) {
+        // Prepare the meal data to add to the "meals" collection
+        Map<String, Object> mealData = new HashMap<>();
+        mealData.put("studentId", String.valueOf(studentId));
+        mealData.put("mealType", mealName);
+        mealData.put("price", mealCost);
+        mealData.put("date", new Date()); // Store the current date as meal time
 
+        // Add the meal to the "meals" collection
+        db.collection("meals")
+                .add(mealData)
+                .addOnSuccessListener(documentReference ->
+                        Toast.makeText(AddMealActivity.this, "Meal added to meals collection", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(AddMealActivity.this, "Failed to add meal to meals collection", Toast.LENGTH_SHORT).show());
+    }
     // Update the displayed due amount
     private void updateDueAmountDisplay() {
         db.collection("students").document(studentId)
@@ -168,6 +199,8 @@ public class AddMealActivity extends AppCompatActivity {
             db.collection("meals")
                     .whereGreaterThanOrEqualTo("date", startOfDay)
                     .whereLessThan("date", endOfDay)
+//                    .whereEqualTo("studentId",String.valueOf(studentId))
+
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {

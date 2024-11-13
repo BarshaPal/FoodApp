@@ -5,32 +5,128 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+       android:background="#6200EE"
+       android:padding="16dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#6200EE"
+        android:gravity="center"
+        android:orientation="vertical"
         android:padding="16dp">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FOOD APP"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="24dp"
+        android:layout_margin="16dp"
+        android:elevation="4dp"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="-40dp"
+        android:clipToPadding="false">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WELCOME"
+            android:textColor="#6200EE"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Order is on your Hand"
+            android:textColor="#808080"
+            android:textSize="14sp"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="16dp" />
 
         <EditText
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress"
+            android:backgroundTint="#6200EE"
+            android:padding="12dp"
+            android:drawablePadding="8dp"/>
+<!--            android:drawableEnd="@drawable/ic_check" />-->
 
         <EditText
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
-            android:inputType="textPassword"/>
+            android:inputType="textPassword"
+            android:backgroundTint="#6200EE"
+            android:padding="12dp"
+            android:drawablePadding="8dp"/>
+<!--            android:drawableEnd="@drawable/ic_visibility" />-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:gravity="space_between"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:layout_marginBottom="16dp">-->
+
+<!--            <CheckBox-->
+<!--                android:id="@+id/rememberMeCheckBox"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Enable View"-->
+<!--                android:textColor="#6200EE" />-->
+
+
+<!--        </LinearLayout>-->
 
         <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Login"/>
-
+            android:text="LOGIN"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#6200EE"
+            android:padding="12dp"
+            android:textAllCaps="false"
+            android:elevation="4dp" />
         <Button
             android:id="@+id/signupButton"
             android:layout_width="match_parent"
+            android:textAllCaps="false"
             android:layout_height="wrap_content"
-            android:text="Sign Up"/>
+            android:text="Click to Register"
+            android:textColor="#6200EE"
+            android:backgroundTint="@color/white"/>
+
+
+    </LinearLayout>
+
+<!--        -->
+
+
 
     </LinearLayout>

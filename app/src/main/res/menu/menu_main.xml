@@ -7,6 +7,5 @@
     <item
         android:id="@+id/action_logout"
         android:title="Logout"
-        android:icon="@drawable/common_google_signin_btn_icon_light"
         app:showAsAction="always" />
 </menu>
