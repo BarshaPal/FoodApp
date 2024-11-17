@@ -13,29 +13,33 @@ import java.util.Calendar;
 import com.example.foodapplication.R;
 import com.google.firebase.auth.FirebaseAuth;
 
+
+import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.foodapplication.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 public class AdminActivity extends AppCompatActivity {
 
-    private CalendarView calendarView;
+    private TextView textViewTotalAdvance, textViewAmountLeft;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-        calendarView = findViewById(R.id.calendarView);
+        textViewTotalAdvance = findViewById(R.id.textView_total_advance);
+        textViewAmountLeft = findViewById(R.id.textView_amount_left);
 
-        calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-            // Format the selected date to "yyyy-MM-dd"
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(year, month, dayOfMonth, 0, 0, 0);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String selectedDate = sdf.format(calendar.getTime());
+        db = FirebaseFirestore.getInstance();
 
-            // Pass the selected date to the next activity
-            Intent intent = new Intent(AdminActivity.this, MealsByDateActivity.class);
-            intent.putExtra("selectedDate", selectedDate);
-            startActivity(intent);
-        });
+        calculateTotals();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -43,22 +47,50 @@ public class AdminActivity extends AppCompatActivity {
         return true;
     }
 
-    // Handle item clicks on the menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        // If the logout option is selected, log the user out
         if (id == R.id.action_logout) {
             FirebaseAuth.getInstance().signOut();
-
-            Toast.makeText(this, "Logging out...", Toast.LENGTH_SHORT).show();
-            // Clear any stored user session and redirect to login
-            startActivity(new Intent(this, AuthenticationActivity.class));
-            finish();
+            logoutUser();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+    private void logoutUser() {
+        Toast.makeText(this, "Logging out...", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, AuthenticationActivity.class));
+        finish();
+    }
+
+    private void calculateTotals() {
+        db.collection("userList").get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        double totalAdvance = 0.0;
+                        double amountLeft = 0.0;
+
+                        // Iterate through all documents
+                        for (var document : querySnapshot) {
+                            Double advancePaid = document.getDouble("advancePaid");
+                            Double availableBalance = document.getDouble("availableBalance");
+
+                            if (advancePaid != null) totalAdvance += advancePaid;
+                            if (availableBalance != null) amountLeft += availableBalance;
+                        }
+
+                        // Update UI with calculated values
+                        textViewTotalAdvance.setText("Total Advance Received: " + totalAdvance);
+                        textViewAmountLeft.setText("Amount Left: " + amountLeft);
+                    } else {
+                        Toast.makeText(this, "No data found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to fetch data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
 }
+

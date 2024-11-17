@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.foodapplication.MainActivity;
 import com.example.foodapplication.R;
 import com.example.foodapplication.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -86,7 +87,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                                 startActivity(intent);
                             } else {
                                 // Redirect regular user to AddMealActivity
-                                Intent intent = new Intent(AuthenticationActivity.this, AddMealActivity.class);
+                                Intent intent = new Intent(AuthenticationActivity.this, MainActivity.class);
                                 startActivity(intent);
                             }
                             finish();  // Close AuthenticationActivity after redirection
